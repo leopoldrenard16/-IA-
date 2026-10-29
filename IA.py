@@ -1,14 +1,24 @@
 import streamlit as st, random, secrets, string
 st.set_page_config(page_title="ChatIA Pro", page_icon="🤖")
 
-# --- INITIALISATION DES VARIABLES ---
+# --- ASTUCE POUR QUE LES COMPTES ET LA MÉMOIRE S'ENREGISTRENT POUR TOUJOURS ---
+@st.cache_resource
+def obtenir_base_de_donnees():
+    return {
+        "users": {"leopold": "1234"}, # Base des comptes enregistrés
+        "mem": {} # Mémoire de l'IA à long terme
+    }
+
+db = obtenir_base_de_donnees()
+
+# --- INITIALISATION DES AUTRES VARIABLES ---
 if "nv" not in st.session_state: st.session_state.nv = 1
-if "users" not in st.session_state: st.session_state.users = {"leopold": "1234"}
 if "user" not in st.session_state: st.session_state.user = None
-if "mem" not in st.session_state: st.session_state.mem = {}
 if "q_fr" not in st.session_state:
     fr = [{"v": "manger", "p": "Nous", "f": "ons", "ph": "Nous mangeons"}, {"v": "jouer", "p": "Tu", "f": "es", "ph": "Tu joues"}, {"v": "chanter", "p": "Ils", "f": "ent", "ph": "Ils chantent"}]
     random.shuffle(fr); st.session_state.q_fr = fr
+if "nombre_mystere" not in st.session_state:
+    st.session_state.nombre_mystere = random.randint(1, 100)
 
 clean = lambda t: "".join(c for c in t.lower() if c.isalnum() or c.isspace()).strip()
 
@@ -19,16 +29,16 @@ if st.session_state.user is None:
     p = st.sidebar.text_input("Pseudo")
     m = st.sidebar.text_input("Mot de passe", type="password")
     if st.sidebar.button("Valider"):
-        if act == "Se connecter" and st.session_state.users.get(p) == m:
+        if act == "Se connecter" and db["users"].get(p) == m:
             st.session_state.user = p; st.rerun()
-        elif act == "Créer un compte" and p.strip() and p not in st.session_state.users:
-            st.session_state.users[p] = m; st.sidebar.success("Compte créé !")
+        elif act == "Créer un compte" and p.strip() and p not in db["users"]:
+            db["users"][p] = m; st.sidebar.success("Compte créé et enregistré !")
         else: st.sidebar.error("Erreur")
 else:
     st.sidebar.write(f"🟢 Connecté : **{st.session_state.user}**")
     if st.sidebar.button("Déconnexion"): st.session_state.user = None; st.rerun()
 
-menu = st.sidebar.radio("Menu", ["Accueil", "🧠 Apprentissage", "🏆 calcul-GAME", "🧮 Calculatrice", "📚 Quiz Maths", "🇫🇷 Quiz Français", "🔐 Mot de passe"])
+menu = st.sidebar.radio("Menu", ["Accueil", "🧠 Apprentissage", "🎰 Machine à nombre", "🏆 calcul-GAME", "🧮 Calculatrice", "📚 Quiz Maths", "🇫🇷 Quiz Français", "🔐 Mot de passe"])
 
 # --- ACCUEIL ---
 if menu == "Accueil":
@@ -40,16 +50,38 @@ if menu == "Accueil":
         elif "ca va" in t: st.success("🤖 Tout tourne parfaitement dans mes circuits ! Et toi ?")
         elif "qui t a cree" in t: st.success("🤖 C'est le grand développeur Leopold qui a écrit mon code !")
         elif "blague" in t: st.success(f"🤖 {random.choice(['Pourquoi les robots n\'ont pas peur ? Ils ont des nerfs d\'acier !', 'Qu\'est-ce qu\'un ordinateur qui chante ? Un disque dur !'])}")
-        elif t in st.session_state.mem: st.success(f"🤖 {st.session_state.mem[t]}")
-        else: st.warning("🤖 Je ne sais pas ! Va dans 'Apprentissage' pour m'aider !")
+        elif t in db["mem"] and st.session_state.user is not None:
+            # L'IA ne répond avec sa mémoire QUE si on est connecté (pas en invité)
+            st.success(f"🤖 {db['mem'][t]}")
+        else: st.warning("🤖 Je ne sais pas ! Va dans 'Apprentissage' pour m'aider (connecte-toi d'abord) !")
 
 # --- APPRENTISSAGE ---
 elif menu == "🧠 Apprentissage":
     st.title("🧠 Apprentissage")
-    q_in = st.text_input("Quand j'écris (ex: couleur preferee) :")
-    r_in = st.text_input("Tu dous répondre :")
-    if st.button("Enregistrer") and q_in.strip() and r_in.strip():
-        st.session_state.mem[clean(q_in)] = r_in; st.success("🧠 Enregistré ! Teste sur l'Accueil !")
+    if st.session_state.user is None:
+        st.error("⚠️ Tu dois te connecter à un compte à gauche pour pouvoir apprendre des choses à l'IA !")
+    else:
+        st.write(f"En tant que membre connecté (**{st.session_state.user}**), tu peux donner de la mémoire à l'IA.")
+        q_in = st.text_input("Quand j'écris (ex: couleur preferee) :")
+        r_in = st.text_input("Tu dois répondre :")
+        if st.button("Enregistrer") and q_in.strip() and r_in.strip():
+            db["mem"][clean(q_in)] = r_in; st.success("🧠 Enregistré pour toujours ! Même si tu recharges la page, je m'en souviendrai !")
+
+# --- LA GRANDE MACHINE À NOMBRE ---
+elif menu == "🎰 Machine à nombre":
+    st.code("01001010101010101010101000000101010100110010")
+    st.subheader("🎰 LA GRANDE MACHINE A NOMBRE 🎰")
+    st.code("01010101011010101010100111001010101110101001")
+    st.write("Devine le nombre que j'ai en tête entre 1 et 100 !")
+    bonjour = st.number_input("Ta proposition :", min_value=1, max_value=100, step=1, value=50)
+    if st.button("Lancer la machine"):
+        chifre = st.session_state.nombre_mystere
+        if bonjour == chifre:
+            st.balloons(); st.success("🎉 Bravo, tu as trouvé ! La grande machine s'est arrêtée.")
+            st.session_state.nombre_mystere = random.randint(1, 100)
+        else:
+            st.error(f"❌ Dommage, ce n'est pas ça ! Le nombre mystère change...")
+            st.session_state.nombre_mystere = random.randint(1, 100)
 
 # --- JEU CALCUL-GAME ---
 elif menu == "🏆 calcul-GAME":
@@ -79,7 +111,7 @@ elif menu == "📚 Quiz Maths":
     st.write("📖 **PEMDAS :** On fait toujours `*` et `/` AVANT `+` et `-` !")
     rep1 = st.text_input("🔴 Combien font 10 - 4 / 2 ?")
     if rep1 and rep1.strip() == "8": st.success("Excellent ! 🌟")
-    elif rep1: st.error("Faux ! La division était prioritaire (4 / 2 = 2, puis 10 - 2 = 8).")
+    elif rep1: st.error("Faux ! La division était prioritaire.")
 
 # --- QUIZ FRANÇAIS ---
 elif menu == "🇫🇷 Quiz Français":
