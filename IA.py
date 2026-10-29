@@ -68,7 +68,7 @@ st.write("Choisis une activité dans le menu de gauche 👈")
 # Création du menu sur le côté de l'écran
 menu = st.sidebar.radio(
     "Menu Principal",
-    ["Accueil", "🏆 calcul-GAME", "🧮 Super Calculatrice", "📚 Cours & Quiz de Maths", "🇫🇷 Cours de Français", "🔐 Générateur de Mot de Passe"]
+    ["Accueil", "🏆 calcul-GAME", "🧮 Calgoritme", "📚 Cours & Quiz de Maths", "🇫🇷 Cours de Français", "🔐 Générateur de Mot de Passe"]
 )
 
 # --- ACCUEIL ---
@@ -113,8 +113,8 @@ elif menu == "🏆 calcul-GAME":
             st.session_state.niveau_actuel = 1
 
 # --- SUPER CALCULATRICE ---
-elif menu == "🧮 Super Calculatrice":
-    st.subheader("🧮 Super Calculatrice Libre")
+elif menu == "🧮 calgorime":
+    st.subheader("🧮 Calgoritme")
     expression = st.text_input("Entrez votre calcul (exemple: 5 + 2 * 3) :")
     if expression:
         try:
