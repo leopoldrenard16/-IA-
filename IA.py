@@ -20,25 +20,18 @@ def nettoyer_texte(texte):
 def generer_niveaux_game():
     """Génère la liste des 120 niveaux pour calcul-GAME."""
     niveaux = []
-    # NIVEAUX 1 À 30
     for i in range(1, 16):
         niveaux.append((f"{10 + i} + {5 + i}", (10 + i) + (5 + i), "Additionne les unités puis les dizaines !"))
     for i in range(1, 16):
         niveaux.append((f"{30 - i} - 2", (30 - i) - 2, "Recule doucement sur la ligne des nombres."))
-    
-    # NIVEAUX 31 À 60
     for i in range(1, 16):
         niveaux.append((f"{i} x 2", i * 2, "Multiplier par 2, c'est trouver le double !"))
     for i in range(1, 16):
         niveaux.append((f"{i} x 5", i * 5, "Les résultats se terminent toujours par 0 ou 5."))
-        
-    # NIVEAUX 61 À 90
     for i in range(1, 16):
         niveaux.append((f"{5 + i} + {i} + 2", (5 + i) + i + 2, "Regroupe les nombres faciles en premier."))
     for i in range(1, 16):
         niveaux.append((f"40 - {i}", 40 - i, "Compte à rebours à partir de 40."))
-        
-    # NIVEAUX 91 À 120
     for i in range(1, 16):
         niveaux.append((f"{i} x 10", i * 10, "Ajoute simplement un zéro à droite du nombre !"))
     for i in range(1, 16):
@@ -48,13 +41,9 @@ def generer_niveaux_game():
             niveaux.append((f"{50 + i} - 15", (50 + i) - 15, "Enlève 10, puis enleve 5."))
     return niveaux
 
-# Initialisation des variables cachées de Streamlit (pour s'en souvenir à chaque clic)
+# Initialisation des variables cachées de Streamlit
 if "niveau_actuel" not in st.session_state:
     st.session_state.niveau_actuel = 1
-if "score_maths" not in st.session_state:
-    st.session_state.score_maths = 0
-if "score_francais" not in st.session_state:
-    st.session_state.score_francais = 0
 if "questions_fr" not in st.session_state:
     st.session_state.questions_fr = []
 
@@ -65,24 +54,42 @@ if "questions_fr" not in st.session_state:
 st.title("🤖 BIENVENUE DANS CHATIA")
 st.write("Choisis une activité dans le menu de gauche 👈")
 
-# Création du menu sur le côté de l'écran
 menu = st.sidebar.radio(
     "Menu Principal",
-    ["Accueil", "🏆 calcul-GAME", "🧮 Calgoritme", "📚 Cours & Quiz de Maths", "🇫🇷 Cours de Français", "🔐 Générateur de Mot de Passe"]
+    ["Accueil", "🏆 calcul-GAME", "🧮 Super Calculatrice", "📚 Cours & Quiz de Maths", "🇫🇷 Cours de Français", "🔐 Générateur de Mot de Passe"]
 )
 
 # --- ACCUEIL ---
 if menu == "Accueil":
-    st.subheader("Discute avec ChatIA !")
+    st.subheader("💬 Discute avec ChatIA !")
     texte_libre = st.text_input("Écris quelque chose à ton IA :")
+    
     if texte_libre:
         texte_propre = nettoyer_texte(texte_libre)
-        if "bonjour" in texte_propre or "salut" in texte_propre:
-            st.success("🤖 Bonjour ! Prêt à t'entraîner aujourd'hui ?")
-        elif "calculatrice" in texte_propre:
-            st.info("🤖 Tu peux utiliser le menu à gauche pour ouvrir la Super Calculatrice !")
+        
+        if "bonjour" in texte_propre or "salut" in texte_propre or "hello" in texte_propre:
+            st.success("🤖 Salut à toi ! Prêt à faire chauffer tes neurones aujourd'hui ?")
+        elif "ca va" in texte_propre or "comment tu vas" in texte_propre:
+            st.success("🤖 Je vais super bien ! Mes circuits électroniques tournent à fond. Et toi ?")
+        elif "tu fais quoi" in texte_propre:
+            st.success("🤖 Je t'attends pour jouer ! Tu as testé le jeu calcul-GAME dans le menu à gauche ?")
+        elif "quel age" in texte_propre or "ton age" in texte_propre:
+            st.success("🤖 Je suis né il y a seulement quelques jours dans ton code Python ! Je suis un bébé robot super intelligent.")
+        elif "qui t a cree" in texte_propre or "ton createur" in texte_propre:
+            st.success("🤖 C'est le grand développeur Leopold ! Il a écrit mes lignes de code pour me donner vie.")
+        elif "merci" in texte_propre:
+            st.success("🤖 De rien ! C'est un plaisir de t'aider.")
+        elif "blague" in texte_propre:
+            blagues = [
+                "Pourquoi les robots n'ont-ils jamais peur ? Parce qu'ils ont des nerfs d'acier ! 🤖",
+                "Qu'est-ce qu'un ordinateur qui fait de la musique ? Un disque dur ! 🎵",
+                "Que fait un geek quand il a froid ? Il ferme les fenêtres de Windows ! 🪟"
+            ]
+            st.success(f"🤖 {random.choice(blagues)}")
+        elif "calculatrice" in texte_propre or "calcul" in texte_propre:
+            st.info("🤖 Pour faire des calculs libres, utilise la 'Super Calculatrice' dans le menu de gauche !")
         else:
-            st.success("🤖 Je t'écoute ! Sélectionne une activité dans le menu à gauche pour commencer à jouer.")
+            st.success("🤖 Intéressant ! Je ne connais pas encore cette phrase, mais je la retiens.")
 
 # --- JEU CALCUL-GAME ---
 elif menu == "🏆 calcul-GAME":
@@ -93,7 +100,6 @@ elif menu == "🏆 calcul-GAME":
     if st.session_state.niveau_actuel <= total_niveaux:
         intitule, solution, astuce = liste_niveaux[st.session_state.niveau_actuel - 1]
         st.info(f"🌟 **NIVEAU {st.session_state.niveau_actuel} / {total_niveaux}** | Combien font : **{intitule}** ?")
-        
         saisie_game = st.text_input("Ta réponse :", key=f"game_{st.session_state.niveau_actuel}")
         if st.button("Valider la réponse"):
             if saisie_game.strip():
@@ -101,7 +107,7 @@ elif menu == "🏆 calcul-GAME":
                     reponse = int(saisie_game.strip())
                     if reponse == solution:
                         st.balloons()
-                        st.success("🎉 EXCELLENT ! Bonne réponse ! Cliquez à nouveau pour passer au niveau suivant.")
+                        st.success("🎉 EXCELLENT ! Bonne réponse ! Clique à nouveau pour passer au niveau suivant.")
                         st.session_state.niveau_actuel += 1
                     else:
                         st.error(f"❌ Ce n'est pas ça. Indice : {astuce}")
@@ -113,9 +119,9 @@ elif menu == "🏆 calcul-GAME":
             st.session_state.niveau_actuel = 1
 
 # --- SUPER CALCULATRICE ---
-elif menu == "🧮 calgorime":
-    st.subheader("🧮 Calgoritme")
-    expression = st.text_input("Entrez votre calcul (exemple: 5 + 2 * 3) :")
+elif menu == "🧮 Super Calculatrice":
+    st.subheader("🧮 Super Calculatrice Libre")
+    expression = st.text_input("Entrez votre calcul :")
     if expression:
         try:
             if not all(c in "0123456789+-*/.()" for c in expression.replace(" ", "")):
@@ -131,12 +137,9 @@ elif menu == "🧮 calgorime":
 elif menu == "📚 Cours & Quiz de Maths":
     st.subheader("📚 Cours & Quiz de Maths")
     choix_maths = st.selectbox("Que veux-vous faire ?", ["Choisir...", "1. Leçon sur les priorités", "2. Quiz de Calcul Mental"])
-    
     if choix_maths == "1. Leçon sur les priorités":
         st.markdown("### 📖 LEÇON : Les priorités opératoires (PEMDAS)")
-        st.write("Dans un calcul sans parenthèses, on effectue TOUJOURS les multiplications et les divisions AVANT les additions et les soustractions.")
-        st.info("Exemple : 5 + 2 * 3 = ? -> 2 * 3 = 6, puis 5 + 6 = 11.")
-        
+        st.write("On effectue TOUJOURS les multiplications et les divisions AVANT les additions et les soustractions.")
         rep1 = st.text_input("🔴 Test : Combien font 10 - 4 / 2 ?")
         if rep1:
             try:
@@ -146,10 +149,7 @@ elif menu == "📚 Cours & Quiz de Maths":
                     st.error("Faux ! La division était prioritaire. 4 / 2 = 2, puis 10 - 2 = 8.")
             except ValueError:
                 st.warning("Écris un nombre !")
-                
     elif choix_maths == "2. Quiz de Calcul Mental":
-        st.markdown("### --- MODE QUIZ DE MATHS (5 questions) ---")
-        # On fixe les calculs pour éviter qu'ils changent à chaque bouton cliqué
         if "quiz_maths_questions" not in st.session_state:
             questions = []
             for _ in range(5):
@@ -158,19 +158,13 @@ elif menu == "📚 Cours & Quiz de Maths":
                 sol = a + b if op == "+" else (a - b if op == "-" else a * b)
                 questions.append((a, op, b, sol))
             st.session_state.quiz_maths_questions = questions
-            st.session_state.score_maths = 0
-
         for idx, (a, op, b, sol) in enumerate(st.session_state.quiz_maths_questions):
             rep = st.text_input(f"Question {idx+1} : Combien font {a} {op} {b} ?", key=f"qmath_{idx}")
             if rep:
                 try:
-                    if int(rep) == sol:
-                        st.caption("Correct ! ✨")
-                    else:
-                        st.caption(f"Faux (réponse: {sol})")
-                except ValueError:
-                    pass
-        
+                    if int(rep) == sol: st.caption("Correct ! ✨")
+                    else: st.caption(f"Faux (réponse: {sol})")
+                except ValueError: pass
         if st.button("Générer un nouveau Quiz"):
             del st.session_state.quiz_maths_questions
 
@@ -178,27 +172,20 @@ elif menu == "📚 Cours & Quiz de Maths":
 elif menu == "🇫🇷 Cours de Français":
     st.subheader("🇫🇷 Cours de Français")
     st.markdown("**Le présent des verbes en -ER :** Je **-e**, Tu **-es**, Il **-e**, Nous **-ons**, Vous **-ez**, Ils **-ent**.")
-    
     if not st.session_state.questions_fr:
         base_questions = [
             {"v": "manger", "p": "Nous", "f": "ons", "ph": "Nous mangeons"},
             {"v": "jouer", "p": "Tu", "f": "es", "ph": "Tu joues"},
-            {"v": "chanter", "p": "Ils", "f": "ent", "ph": "Ils chantent"},
-            {"v": "aimer", "p": "J'", "f": "e", "ph": "J'aime"},
-            {"v": "regarder", "p": "Vous", "f": "ez", "ph": "Vous regardez"}
+            {"v": "chanter", "p": "Ils", "f": "ent", "ph": "Ils chantent"}
         ]
         random.shuffle(base_questions)
         st.session_state.questions_fr = base_questions
-
     for idx, q in enumerate(st.session_state.questions_fr):
         rep = st.text_input(f"Question {idx+1} : ({q['v']}) -> {q['p']} ...... ?", key=f"qfr_{idx}").strip().lower()
         verbe_complet = q['ph'].split()[-1].lower()
         if rep:
-            if rep == q['f'] or rep == verbe_complet:
-                st.caption("Excellent ! ✨")
-            else:
-                st.caption(f"La phrase correcte : {q['ph']}")
-                
+            if rep == q['f'] or rep == verbe_complet: st.caption("Excellent ! ✨")
+            else: st.caption(f"La phrase correcte : {q['ph']}")
     if st.button("Recommencer le Quiz de Français"):
         st.session_state.questions_fr = []
 
@@ -206,17 +193,7 @@ elif menu == "🇫🇷 Cours de Français":
 elif menu == "🔐 Générateur de Mot de Passe":
     st.subheader("🔐 Générateur de Mot de Passe Sécurisé")
     longueur = st.number_input("Longueur du mot de passe (minimum 4) :", min_value=4, value=8)
-    
     if st.button("Générer"):
         chars = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
-        mp = [
-            secrets.choice(string.ascii_lowercase),
-            secrets.choice(string.ascii_uppercase),
-            secrets.choice(string.digits),
-            secrets.choice("!@#$%^&*()-_=+")
-        ]
-        for _ in range(int(longueur) - 4):
-            mp.append(secrets.choice(chars))
-        random.shuffle(mp)
-        mot_de_passe_final = ''.join(mp)
-        st.success(f"Ton mot de passe sécurisé : `{mot_de_passe_final}`")
+        mp = [secrets.choice(string.ascii_lowercase), secrets.choice(string.ascii_uppercase), secrets.choice(string.digits), secrets.choice("!@#$%^&*()-_=+")]
+        for _ in range(int(longueur) - 4): mp.append(secrets.choice(chars))
